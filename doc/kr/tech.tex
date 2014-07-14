@@ -55,7 +55,8 @@ environment (kernel, etc.). It is not necessary to read or understand
 this document in order to install or use \LILO. A general introduction
 and installation instructions can be found in the user's guide.
 
-{\bf 이 문서는 현재의\footnote{작성당시 1998년을 기준으로 함} 리눅스와 \LILO\ (version 21)의 상태가 부분적으로 반영되었습니다.}
+{\bf 이 문서는 현재의\footnote{작성당시 1998년을 기준으로 함} 리눅스와 
+\LILO\ (version 21)의 상태가 부분적으로만 반영되어 있습니다.}
 
 {\bf This document has only been partially updated and does not entirely
 reflect the current ('98) status of Linux or of \LILO\ (version 21).}
@@ -69,12 +70,13 @@ reflect the current ('98) status of Linux or of \LILO\ (version 21).}
 0x96A00 에서 0x96800 까지 아래로 자라는 스택 공간이 설정되고,
 0x96C00 부터 두번째 부트로더가 적재된 후, 이 주소로 제어권이 넘어갑니다.
 
-첫번째 부트섹터가 0x96A00 으로 이동하면 화면에 "L"이 표시되고,
+첫번째 부트섹터가 0x96A00 으로 이동한 이후에 화면에 "L"이 표시되고,
 두번째 부트로더가 시작되기 전에 화면에 "I"가 표시됩니다.
-만약 두번째 부트로더를 불러오는 과정에서 에러가 발생했다면,
-첫번째 "L"이 출력되고, 두자리의 16진수로 이루어진 에러코드가 출력됩니다.
-이것이 일시적인 문제가 아니라면 에러코드는 끝없이 반복될 것이며,
-빌드시 {\tt NO1STDIAG} 옵션을 줌으로써 에러코드가 표시되는것을 끌 수 있습니다.
+
+만약 두번째 부트로더를 읽는 과정에서 에러가 발생했다면,
+첫번째 "L"이 출력된 이후에 두자리의 16진수로 이루어진 에러코드가 출력됩니다.
+만약 이것이 일시적인 문제가 아니라면, 에러코드는 끝없이 반복될 것입니다.
+\LILO\ 빌드시 {\tt NO1STDIAG} 옵션을 줌으로써 이 에러코드가 표시되는것을 끌 수 있습니다.
 
 The boot sector is loaded by the ROM-BIOS at address 0x07C00. It moves
 itself to address 0x96A00, sets up the stack (growing downwards from

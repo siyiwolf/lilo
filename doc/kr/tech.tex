@@ -7,8 +7,9 @@
 
 \documentclass[fullpage]{article}
 \usepackage{ae}
+\usepackage{kotex}
 \usepackage[bookmarks,%
-        pdftitle={Linux Loader (LILO) technical overview},%
+        pdftitle={Linux Loader (LILO) 기술적 개요},%
         pdfsubject={Booting on iA32 architecture},%
         pdfkeywords={lilo, boot},%
         pdfauthor={Werner Almesberger <Werner.Almesberger@epfl.ch>}]%
@@ -30,9 +31,9 @@
 
 \title{\LILO \\
   \Large
-  Generic boot loader for Linux \\
+  리눅스를 위한 표준 부트로더 \\
   Version 21 \\ ~\\
-  \bf Technical overview}
+  \bf 기술적 개요}
 \author{Werner Almesberger \\
   {\tt Werner.Almesberger@epfl.ch}}
 \date{December 4, 1998}
@@ -45,17 +46,35 @@
 }
 
 ~\\
+이 문서는 \LILO\ 의 내부 동작과, 커널과 같은 환경과의 관계에 대해 설명합니다
+\LILO\를 사용하기 위하여 반드시 읽거나 이해해야 할 필요는 없습니다.
+일반적인 소개와 설치 및 운용에 관한 정보는 사용자 가이드를 참고하십시요
+
 This document describes internals of \LILO\ and related parts of its
 environment (kernel, etc.). It is not necessary to read or understand
 this document in order to install or use \LILO. A general introduction
 and installation instructions can be found in the user's guide.
 
+{\bf 이 문서는 현재의\footnote{작성당시 1998년을 기준으로 함} 리눅스와 \LILO\ (version 21)의 상태가 부분적으로 반영되었습니다.}
+
 {\bf This document has only been partially updated and does not entirely
 reflect the current ('98) status of Linux or of \LILO\ (version 21).}
 
 
-\section{Load sequence}
+\section{적재 과정 (Load sequence)}
 \label{load}
+
+부트섹터는 ROM-BIOS 에 의해 0x07C00 으로 적재됩니다.
+적재된 첫번째 부트섹터는 0x96A00 로 이동하며,
+0x96A00 에서 0x96800 까지 아래로 자라는 스택 공간이 설정되고,
+0x96C00 부터 두번째 부트로더가 적재된 후, 이 주소로 제어권이 넘어갑니다.
+
+첫번째 부트섹터가 0x96A00 으로 이동하면 화면에 "L"이 표시되고,
+두번째 부트로더가 시작되기 전에 화면에 "I"가 표시됩니다.
+만약 두번째 부트로더를 불러오는 과정에서 에러가 발생했다면,
+첫번째 "L"이 출력되고, 두자리의 16진수로 이루어진 에러코드가 출력됩니다.
+이것이 일시적인 문제가 아니라면 에러코드는 끝없이 반복될 것이며,
+빌드시 {\tt NO1STDIAG} 옵션을 줌으로써 에러코드가 표시되는것을 끌 수 있습니다.
 
 The boot sector is loaded by the ROM-BIOS at address 0x07C00. It moves
 itself to address 0x96A00, sets up the stack (growing downwards from
@@ -66,6 +85,8 @@ error occurs when loading the secondary boot loader, a two-digit hex code
 is displayed after the ``L''. This results in an endless stream of error
 codes if the problem is permanent. Displaying these error codes is disabled
 if the build-time option {\tt NO1STDIAG} is set.
+
+두번째 부트로더는 0x98800 의 디스크립터 테이블과, 
 
 The secondary boot loader loads the descriptor table at 0x98800 and the
 sector containing the default command line at 0x98C00. If the default command

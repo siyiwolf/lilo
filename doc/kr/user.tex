@@ -292,31 +292,39 @@ most problems people experience with \LILO:
   \item 복구 디스크를 가지고 있는지, 사용법은 알고 있는지, 그리고 최신 버전인지 확인해 주세요.
   \item Make sure you have an emergency boot disk, that you know how to
     use it, and that it is always kept up to date.
+  \item \emphasize{항상} 커널이나 \LILO\ 의 어떤 부분(설정 파일 포함)이 변경되어 진다면 \path{/sbin/lilo} 를 실행 하세요. 변경 유무가 확실치 않을 때에도 실행 하세요. 너무 자주 \path{/sbin/lilo} 를 실행 할 수는 없습니다.
   \item Run \path{/sbin/lilo} \emphasize{whenever} the kernel or any part
     of \LILO, including its configuration file, has changed. When in doubt,
     run it. You can't run \path{/sbin/lilo} too many times.
+  \item 만약 \LILO\ 가 MBR에서 사용된다면, 시스템에 영향을 줄 수 있는 작업 또는 리눅스 파티션을 제거하기 전에 \LILO\ 를 제거하세요.
   \item If performing a destructive upgrade and/or erasing your Linux
     partitions, de-install \LILO\ \emphasize{before} that if using it as the
     MBR.
+  \item 설치 스크립트를 신뢰하지 마세요. 언제나 부팅전에 스크립트가 생성한 \path{/etc/lilo.conf} 를 확인하세요.
   \item Don't trust setup scripts. Always verify the \path{/etc/lilo.conf}
     they create before booting.
+  \item 용량이 큰 디스크를 사용한다면 이에 따른 불편함에 대비하여 \craw{linear} 옵션을 사용해야 합니다.
   \item If using a big disk, be prepared for inconveniences: you may have
     to use the \craw{linear} option.
 \end{itemize}
 
 
 \newpage
+\subsection*{시스템 개요}
 \subsection*{System overview}
 
+\LILO\ 는 여러 프로그램과 파일 모음입니다.
 \LILO\ is a collection of several programs and other files:
 
 \begin{description}
+  \item[맵 인스톨러] 는 \LILO\ 와 관련된 모든 파일들을 적절한 장소에 배치하고 부팅 시간에 필요한 위치 데이터 정보를 기록하는 리눅스 시스템 프로그램입니다. 이 프로그램은 보통 \path{/sbin/lilo} 에 위치해 있습니다. \LILO\ 가 인지하는 시스템의 어느 한 부분이라도 변경된다면 정보를 갱신하기 위해 이 프로그램을 실행해야 합니다, e.g. 새로운 커널을 설치한 뒤 
   \item[The map installer] is the program you run under Linux to put all
     files belonging to \LILO\ at the appropriate places and to record
     information about the location of data needed at boot time. This program
     normally resides in \path{/sbin/lilo}. It has to be run to refresh that
     information whenever any part of the system that \LILO\ knows about
     changes, e.g. after installing a new kernel.
+  \item[다양한 파일들] 은 \LILO\ 가 부팅 시간에 필요로 하는 데이터를 포함하고 있습니다, e.g. 부트 로더. 이 파일들은 보통 \path{/boot} 에 위치해 있습니다. 가장 중요한 파일은 부트 로더 (아래에 나오는)와 맵 인스톨러가 커널의 위치를 기록해 놓은 맵 파일(\path{/boot/map}) 입니다. \footnote{\LILO\ 는 파일 시스템을 어떻게 읽는지 모릅니다. 대신 맵 인스톨러가 커널로부터 파일들 (e.g. 커널 이미지)의 물리적 위치를 알아내 해당 정보를 기록합니다. 이는 \LILO\ 가 리눅스에서 지원되는 대부분의 파일 시스템과 동작할 수 있도록 해줍니다.} 또 다른 중요 파일은 설정 파일로 보통 \path{/etc/lilo.conf} 에 위치합니다.
   \item[Various files] contain data \LILO\ needs at boot time, e.g. the
     boot loader. Those files normally reside in \path{/boot}. The most
     important files are the boot loader (see below) and the map file
@@ -327,6 +335,7 @@ most problems people experience with \LILO:
     allows \LILO\ to work with most file systems that are supported by
     Linux.} Another important file is the configuration file, which is
     normally called \path{/etc/lilo.conf}
+  \item[부트 로더] 는 BIOS로 부터 로드되는 \LILO\ 의 한 부분이며 운영체제의 커널이나 부트 섹터를 로드합니다. 또한 부팅할 항목을 선택하거나 부팅 옵션을 추가 하기 위한 간단한 대화식 커맨드 라인 인터페이스도 제공합니다.
   \item[The boot loader] is the part of \LILO\ that is loaded by the BIOS
     and that loads kernels or the boot sectors of other operating systems.
     It also provides a simple command-line interface to interactively

@@ -342,35 +342,43 @@ most problems people experience with \LILO:
     select the item to boot and to add boot options.
 \end{description}
 
+\LILO\ 는 주로 다음의 각 시스템 부분들에 접근합니다:
 \LILO\ primarily accesses the following parts of the system:
 
 \begin{description}
+  \item[룻 파일 시스템 파티션] 은 다음 두 가지 이유로 중요합니다. 첫째, \LILO\ 는 때때로 커널에게 어디서 룻 파일 시스템 파티션을 찾을지 알려야 합니다. 둘째, 룻 파일 시스템 파티션은 흔히 여러 항목(부트 섹터, \path{/boot} 디렉토리, 커널)들을 위해 사용되는 편리한 장소 입니다. 
   \item[The root file system partition] is important for two reasons: first,
     \LILO\ sometimes has to tell the kernel where to look for it. Second, it
     is frequently a convenient place for many other items \LILO\ uses, such
     as the boot sector, the \path{/boot} directory, and the kernels.
+  \item[부트 섹터] 는 \LILO\ 부트 로더의 첫번째 부분을 포함합니다. 이 부분은 더 큰 두번째 단계의 로더를 로드합니다. 두 로더는 보통 \path{/boot/boot.b} 파일에 저장됩니다.
   \item[The boot sector] contains the first part of \LILO's boot loader. It
     loads the much larger second-stage loader. Both loaders are typically
     stored in the file \path{/boot/boot.b}
+  \item[커널] 은 부트 로더로 부터 로드되고 시작됩니다. 커널은 보통 룻 디렉토리 또는 \path{/boot} 에 위치하고 있습니다.
   \item[The kernel] is loaded and started by the boot loader. Kernels
     typically reside in the root directory or in \path{/boot}.
 \end{description}
 
+\LILO\ 가 부팅 시간에 필요로 하는 많은 파일들은 반드시 바이오스에서 접근 가능해야 합니다. 이는 특정 제한 사항을 만듭니다. \ref{broken} 부분을 참조하세요.
 Note that many of the files \LILO\ needs at boot time have to be accessible
 with the BIOS. This creates certain restrictions, see section \ref{broken}.
 
 
 \newpage
+\section{소개}
 \section{Introduction}
 
+다음 부분은 일반적으로 PC가 부팅하는 방법과 리눅스가 부팅할 때나 \LILO\ 를 사용할 때 특별히 알아야 하는 것을 설명합니다.
 The following sections describe how PCs
 boot in general and what has to be known when booting Linux and using
 \LILO\ in particular.
 
-
+\subsection{디스크 구성}
 \subsection{Disk organization}
 \label{diskorg}
 
+부팅 컨셉을 디자인 할 때 PC가 일반적으로 디스크를 구성하는 방법의 미묘한 부분을 이해하는 것은 중요합니다. 가장 간단한 경우는 플로피 디스크 입니다. 플로피 디스크는 부트 섹터, 일부 관리 데이터 (FAT 또는 super block 등등) 그리고 데이터 영역으로 구성됩니다. 관리 데이터는 부팅이 되는 동안 까지는 무관하므로 간단히 데이터 영역의 부분으로 간주됩니다.
 When designing a boot concept, it is important to understand some of the
 subtleties of how PCs typically organize disks. The most simple case are
 floppy disks. They consist of a boot sector, some administrative
@@ -402,8 +410,10 @@ $$
 %;    +---------------------------+
 %:\end{verbatim}
 
+전체 디스크는 리눅스에서 하나의 디바이스로 보입니다. (e.g. \path{/dev/fd0})
 The entire disk appears as one device (e.g. \path{/dev/fd0}) on Linux.
 
+MS-DOS 부트 섹터는 다음의 구조를 가지고 있습니다.
 The MS-DOS boot sector has the following structure:
 
 %%beginskip

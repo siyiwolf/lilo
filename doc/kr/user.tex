@@ -453,18 +453,21 @@ $$
 %;            +------------------------+
 %:\end{verbatim}
 
+\LILO\ 는 비슷한 부트 섹터를 사용하지만 디스크 파라메터 부분은 없습니다. 부트 섹터를 살펴보지 않는 Minix, Ext2 또는 비슷한 파일 시스템에서는 문제가 없습니다. 그러나 \LILO\ 를 MS-DOS 파일 시스템의 부트 섹터에 둔다면 MS-DOS 에서 \LILO\ 에 접근할 수 없게 만들게 됩니다.
 \LILO\ uses a similar boot sector, but it does not contain the disk
 parameters part. This is no problem for Minix, Ext2 or similar file systems,
 because
 they don't look at the boot sector, but putting a \LILO\ boot sector on an
 MS-DOS file system would make it inaccessible for MS-DOS.
 
+하드 디스크는 플로피 디스크보다 좀 더 복잡하게 구성됩니다. 하드 디스크는 파티션이라 불리는 여러 데이터 영역을 가지고 있습니다. 최대 4개까지 만들 수 있는 프라이머리 파티션은 MS-DOS 하드 디스크에 존재 할 수 있습니다. 더 많은 파티션이 필요하다면 하나의 프라이머리 파티션을 여러개의 논리 파티션을 가지는 익스텐디드 파티션으로 사용합니다.
 Hard disks are organized in a more complex way than floppy disks. They
 contain several data areas called partitions. Up to four so-called
 primary partitions can exist on an MS-DOS hard disk. If more partitions
 are needed, one primary partition is used as an extended partition that
 contains several logical partitions.
 
+각 하드 디스크의 첫번째 섹터는 파티션 테이블을 가지고 있습니다. 그리고 익스텐디드 파티션과 \emphasize{각각의} 논리 파티션도 파티션 테이블을 가지고 있습니다.
 The first sector of each hard disk contains a partition table, and an
 extended partition and \emphasize{each} logical partition contains a partition
 table too.
@@ -496,9 +499,10 @@ $$
 %;+--------------------------------------------+
 %:\end{verbatim}
 
+전체 디스크는 \path{/dev/hda}, \path{/dev/hdb}, \path{/dev/sda} 등등으로 접근 할 수 있습니다. 프라이머리 파티션은 \path{/dev/hda1 $\ldots$/dev/hda4} 입니다.
 The entire disk can be accessed as \path{/dev/hda}, \path{/dev/hdb},
 \path{/dev/sda}, etc. The primary partitions are \path{/dev/hda1 $\ldots$
-/dev/hda4}.
+ /dev/hda4}.
 
 %%beginskip
 $$
@@ -551,14 +555,17 @@ $$
 %;+--------------------------------------------+
 %:\end{verbatim}
 
+이 하드 디스크는 두 개의 프라이머리 파티션과 두개의 논리 파티션을 가진 하나의 익스텐디드 파티션을 가지고 있습니다. 이 파티션들은 \path{/dev/hd5 $\ldots$} 으로 접근할 수 있습니다.
 This hard disk has two primary partitions and an extended partition
 that contains two logical partitions. They are accessed as
 \path{/dev/hda5 $\ldots$}
 
+논리 파티션의 파티션 테이블이 일부 디바이스의 첫번째 블럭에 있다면 접근이 불가할 수 있습니다. 반면 메인 파티션 테이블, 모든 부트 섹터 그리고 익스텐디드 파티션 테이블은 가능합니다.
 Note that the partition tables of logical partitions are not accessible
 as the first blocks of some devices, while the main partition table,
 all boot sectors and the partition tables of extended partitions are.
 
+파티션 테이블은 파티션 부트 섹터에 저장됩니다. 보통, 전체 디스크의 유일한 하나의 파티션 부트 섹터가 부트 섹터로 사용됩니다. 이는 흔히 마스터 부트 레코드(MBR)라고 불리어 집니다. 구조는 다음과 같습니다.
 Partition tables are stored in partition boot sectors. Normally, only the
 partition boot sector of the entire disk is used as a boot sector. It is
 also frequently called the master boot record (MBR). Its structure is as
@@ -595,15 +602,20 @@ $$
 %;            +------------------------+
 %:\end{verbatim}
 
+\LILO\ 부트 섹터는 파티션 부트 섹터로서 사용되도록 디자인 되었습니다. (I.e. 파티션 테이블을 위한 공간이 있습니다.) 그러므로, \LILO\ 부트 섹터는 다음 위치에 저장되어 질 수 있습니다.
 The \LILO\ boot sector is designed to be usable as a partition boot sector.
 (I.e. there is room for the partition table.)
 Therefore, the \LILO\ boot sector can be stored at the following locations:
 
 \begin{itemize}
+  \item 리눅스 플로피 디스크의 부트 섹터. (\path{/dev/fd0}, $\ldots$)
   \item boot sector of a Linux floppy disk. (\path{/dev/fd0}, $\ldots$)
+  \item 하드 디스크의 MBR. (\path{/dev/hda}, \path{/dev/sda}, $\ldots$)
   \item MBR of the first hard disk. (\path{/dev/hda}, \path{/dev/sda}, $\ldots$)
+  \item 첫번째 하드 디스크 프라이머리 리눅스 파일 시스템 파티션의 부트 섹터. (\path{/dev/hds1}, $\ldots$)
   \item boot sector of a primary Linux file system partition on the first hard
     disk. (\path{/dev/hda1}, $\ldots$)
+  \item 첫번째 하드 디스크 익스텐디드 파티션의 부트섹터. (\path{/dev/hds1}, $\ldots$)\footnote{대부분의 FDISK 타입 프로그램은 익스텐디드 파티션으로 부터 부팅 되어진다고 예상하지 않으며 익스텐디드 파티션이 활성화 되는것을 거부합니다. \LILO\ 는 위 제한 사항이 없는 간단한 프로그램 (\name{activate})과 함께 있습니다. 리눅스 \name{fdisk} 는 또한 익스텐디드 파티션이 활성화 되는 것을 도와줍니다.}
   \item partition boot sector of an extended partition on the first hard disk.
     (\path{/dev/hda1}, $\ldots$)\footnote{Most FDISK-type programs don't
       believe in booting from an extended partition and refuse to
@@ -612,26 +624,33 @@ Therefore, the \LILO\ boot sector can be stored at the following locations:
       also supports activating extended partitions.}
 \end{itemize}
 
+\LILO\ 부트 섹터는 다음 위치에 \emphasize{저장되어 질 수 없습니다.}
 It \emphasize{can't} be stored at any of the following locations:
 
 \begin{itemize}
+  \item 비-리눅스 플로피 디스크의 부트섹터 혹은 프라이머리 파티션.
   \item boot sector of a non-Linux floppy disk or primary partition.
+  \item 리눅스 스왑 파티션.
   \item a Linux swap partition.
+  \item 익스텐디드 파티션의 논리 파티션 부트 섹터.%
+  \footnote{\LILO\ 는 \raw{-b} 옵션이나 \craw{boot} 변수를 사용하여 파티션에 놓일 수 있게 강제될 수 있습니다. 그러나 마스터 부트 레코드로서 실행되는 소수의 프로그램만 논리 파티션으로 부터 부팅되는 것을 돕습니다.}
   \item boot sector of a logical partition in an extended partition.%
 \footnote{\LILO\ can be forced to put the boot sector on such a
  partition by using the \raw{-b} option or the \craw{boot} variable.
  However, only few programs that operate as master boot records
  support booting from a logical partition.}
+  \item 두번째 하드 디스크. (백업 설치를 위한 것이 아니라면, 현재 첫번째 디스크가 사용 불가 하거나 제거 되었다면, 혹은 다른 부트 로더가 사용된다면 두번째 하드 디스크는 다른 드라이버로 부터 부트 섹터를 로딩할 수 있습니다.
   \item on the second hard disk. (Unless for backup installations,
     if the current first disk will be removed or disabled, or if some
     other boot loader is used, that is capable of loading boot sectors from
     other drives.)
 \end{itemize}
 
+\LILO\ 는 유효하지 않은 곳에 부트 섹터를 놓는 시도를 감시하지만 이것에만 의지 하지 않도록 합니다. 
 Although \LILO\ tries to detect attempts to put its boot sector at an
 invalid location, you should not rely on that.
 
-
+\subsection{부팅의 기초}
 \subsection{Booting basics}
 
 When booting from a floppy disk, the first sector of the disk, the so-called
